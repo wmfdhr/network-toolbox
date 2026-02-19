@@ -1,0 +1,15 @@
+[华为]
+display version
+display lldp neighbor
+display ip interface brief
+
+[华三]
+display version
+display lldp neighbor-information verbose
+display ip interface brief
+
+
+[锐捷]
+show version
+show ip interface brief
+

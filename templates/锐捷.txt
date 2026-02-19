@@ -1,0 +1,42 @@
+{{ device_info.设备名称 }} {{ device_info.管理IP }} {{ device_info.厂商 }}
+
+{% for interface in interfaces %}
+---------------------------{{ interface.本端接口 }}连接{{ interface.对端设备 }}的{{ interface.对端接口 }}口----------------------------------
+##操作
+interface {{ interface.本端接口 }}
+ {% if interface.本端VPN实例 %}
+ ip vrf forwarding {{ interface.本端VPN实例 }}
+ {% endif %}
+ description {{ interface.对端设备 }}|{{ interface.对端管理IP }}|{{ interface.对端接口 }}
+ {% if interface.本端IPv4 %}
+ ip address {{ interface.本端IPv4 }} {{ interface.本端IPv4掩码 }}
+ {% endif %}
+ {% if interface.本端IPv6 %}
+ ipv6 address {{ interface.本端IPv6 }}/{{ interface.本端IPv6掩码 }}
+ {% endif %}
+#
+##验证
+show ip interface brief {{ interface.本端接口 }}
+{% if interface.本端IPv4 %}
+ping {% if interface.本端VPN实例 %}-vrf {{ interface.本端VPN实例 }} {% endif %}{{ interface.对端IPv4_仅IP }}
+{% endif %}
+{% if interface.本端IPv6 %}
+ping ipv6 {% if interface.本端VPN实例 %}-vrf {{ interface.本端VPN实例 }} {% endif %}{{ interface.对端IPv6_仅IP }}
+{% endif %}
+## {{ interface.本端接口 }}连接{{ interface.对端设备 }}的{{ interface.对端接口 }}口
+##回退
+interface {{ interface.本端接口 }}
+{% if interface.本端IPv4 %}
+ no ip address
+{% endif %}
+{% if interface.本端IPv6 %}
+ no ipv6 address
+{% endif %}
+ no description
+{% if interface.本端VPN实例 %}
+ no ip vrf forwarding
+{% endif %}
+#
+{% endfor %}
+
+{% for _ in range(88) %}#{% endfor %}
